@@ -48,6 +48,8 @@ const MyProfile = () => {
         } catch (error) {
           console.error("Error fetching prompts:", error);
         }
+      } else {
+        router.push("/");
       }
     };
 
