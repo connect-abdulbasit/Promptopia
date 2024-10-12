@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-nextjs": "^2.3.11",
     "bcrypt": "^5.1.1",
     "mongodb": "^6.9.0",
     "mongoose": "^8.7.1",
