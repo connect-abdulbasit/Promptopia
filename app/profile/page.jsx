@@ -3,9 +3,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Profile from "@components/Profile";
 import { useEffect, useState } from "react";
+import Loader from "@components/Loader";
 
 const MyProfile = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { data: session, status } = useSession(); // Adding session status
   const router = useRouter();
 
@@ -38,6 +40,7 @@ const MyProfile = () => {
     const fetchPrompts = async () => {
       if (session?.user.id) {
         // Ensuring session is loaded before fetching
+        setLoading(true);
         try {
           const response = await fetch(`/api/users/${session.user.id}/posts`);
           if (!response.ok) {
@@ -48,6 +51,7 @@ const MyProfile = () => {
         } catch (error) {
           console.error("Error fetching prompts:", error);
         }
+        setLoading(false);
       } else {
         router.push("/");
       }
@@ -58,7 +62,7 @@ const MyProfile = () => {
 
   // Render a loading state when session is being loaded
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <Loader className={"h-screen"} />;
   }
 
   // Return Profile component once session is loaded
@@ -70,6 +74,7 @@ const MyProfile = () => {
       data={data}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
+      loading={loading}
     />
   );
 };
