@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PromptCard from "./PromptCard";
 
 const PromptCardList = ({ data, handleTagClick }) => {
@@ -18,13 +18,31 @@ const PromptCardList = ({ data, handleTagClick }) => {
 export const Feed = () => {
   const [searchText, setsearchText] = useState("");
   const [post, setpost] = useState([]);
-  const handleSearchText = () => {};
+  const [loading, setLoading] = useState(false);
+  const [filteredPrompts, setfilteredPrompts] = useState([]);
+
+  const input = useRef(null);
+
+  const handleSearchText = () => {
+    setsearchText(input.current.value);
+
+    if (input.current.value !== "") {
+      const filteredData = post.filter((item) =>
+        item.creator.username.includes(searchText)
+      );
+      console.log(filteredData);
+      setfilteredPrompts(filteredData);
+    } else {
+      setfilteredPrompts(post);
+    }
+  };
 
   useEffect(() => {
     const fetchPrompts = async () => {
       const response = await fetch("/api/prompt");
       const data = await response.json();
       setpost(data);
+      setfilteredPrompts(data);
     };
 
     fetchPrompts();
@@ -37,12 +55,13 @@ export const Feed = () => {
           type="text"
           placeholder="Search for a prompt"
           value={searchText}
+          ref={input}
           onChange={handleSearchText}
           required
           className="search_input"
         />
       </form>
-      <PromptCardList data={post} handleTagClick={() => {}} />
+      <PromptCardList data={filteredPrompts} handleTagClick={() => {}} />
     </section>
   );
 };
