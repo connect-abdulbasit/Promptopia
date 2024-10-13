@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import PromptCard from "./PromptCard";
+import Loader from "./Loader";
 
 const PromptCardList = ({ data, handleTagClick }) => {
   return (
@@ -15,38 +16,58 @@ const PromptCardList = ({ data, handleTagClick }) => {
     </div>
   );
 };
+
 export const Feed = () => {
-  const [searchText, setsearchText] = useState("");
-  const [post, setpost] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [filteredPrompts, setfilteredPrompts] = useState([]);
-
+  const [searchText, setSearchText] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [filteredPrompts, setFilteredPrompts] = useState([]);
   const input = useRef(null);
+  const [error, setError] = useState(false);
 
-  const handleSearchText = () => {
-    setsearchText(input.current.value);
+  // Debounce effect for search
+  useEffect(() => {
+    const debounceSearch = setTimeout(() => {
+      setSearching(true);
+      if (searchText.trim() !== "") {
+        const filteredData = posts.filter((item) =>
+          item.creator.username.toLowerCase().includes(searchText.toLowerCase())
+        );
+        setFilteredPrompts(filteredData);
+      } else {
+        setFilteredPrompts(posts);
+      }
+      setSearching(false);
+    }, 500);
 
-    if (input.current.value !== "") {
-      const filteredData = post.filter((item) =>
-        item.creator.username.includes(searchText)
-      );
-      console.log(filteredData);
-      setfilteredPrompts(filteredData);
-    } else {
-      setfilteredPrompts(post);
-    }
-  };
+    return () => clearTimeout(debounceSearch);
+  }, [searchText, posts]);
 
+  // Fetch prompts on component mount
   useEffect(() => {
     const fetchPrompts = async () => {
-      const response = await fetch("/api/prompt");
-      const data = await response.json();
-      setpost(data);
-      setfilteredPrompts(data);
+      setLoading(true);
+      try {
+        const response = await fetch("/api/prompt");
+        if (!response.ok) throw new Error("Failed to fetch prompts");
+        const data = await response.json();
+        setPosts(data);
+        setFilteredPrompts(data);
+      } catch (err) {
+        setError(true);
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchPrompts();
   }, []);
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+  };
 
   return (
     <section className="feed">
@@ -56,12 +77,21 @@ export const Feed = () => {
           placeholder="Search for a prompt"
           value={searchText}
           ref={input}
-          onChange={handleSearchText}
+          onChange={handleSearchChange}
           required
           className="search_input"
         />
       </form>
-      <PromptCardList data={filteredPrompts} handleTagClick={() => {}} />
+
+      {loading ? (
+        <Loader className="mt-32" />
+      ) : error ? (
+        <p className="mt-32 text-red-500">
+          Error loading prompts. Please try again.
+        </p>
+      ) : (
+        <PromptCardList data={filteredPrompts} handleTagClick={() => {}} />
+      )}
     </section>
   );
 };
