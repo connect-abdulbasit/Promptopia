@@ -31,11 +31,9 @@ export const Feed = () => {
       setSearching(true);
       if (searchText.trim() !== "" && searchText.trim() !== "#") {
         const filteredData = posts.filter((item) => {
-          console.log(item);
           if (searchText.startsWith("#")) {
             const tag = searchText.toLowerCase();
             const tagsArray = item.tag.split(" ").map((t) => t.toLowerCase());
-            console.log(tagsArray);
 
             return tagsArray.some((t) => t === tag);
           } else {
