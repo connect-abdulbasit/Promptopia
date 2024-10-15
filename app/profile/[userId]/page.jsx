@@ -9,7 +9,8 @@ const Page = () => {
   const { userId } = useParams();
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState(""); // State for the user's name
+  const [name, setName] = useState("");
+  const [userName, setUserName] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -26,7 +27,8 @@ const Page = () => {
 
           // Assuming data[0].creator.username holds the user's name
           if (data.length > 0 && data[0].creator.username) {
-            setName(data[0].creator.username); // Set the name from fetched data
+            setName(data[0].creator.name);
+            setUserName(data[0].creator.username); // Set the name from fetched data
           }
         } catch (error) {
           console.error("Error fetching prompts:", error);
@@ -49,9 +51,10 @@ const Page = () => {
 
   return (
     <Profile
+      name="Creator's"
       desc={
-        name
-          ? `Welcome to ${name}'s profile! Discover their thoughts and prompts.`
+        userName
+          ? `Welcome to ${userName}'s profile! Discover their thoughts and prompts.`
           : ""
       }
       data={prompts}
