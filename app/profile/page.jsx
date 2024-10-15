@@ -7,8 +7,8 @@ import Loader from "@components/Loader";
 
 const MyProfile = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { data: session, status } = useSession(); // Adding session status
+  const [loading, setLoading] = useState(true); // Loader for data fetching
+  const { data: session, status } = useSession(); // Add session status check
   const router = useRouter();
 
   // Edit handler to navigate to update prompt page
@@ -39,8 +39,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchPrompts = async () => {
       if (session?.user.id) {
-        // Ensuring session is loaded before fetching
-        setLoading(true);
+        setLoading(true); // Start loading when fetching data
         try {
           const response = await fetch(`/api/users/${session.user.id}/posts`);
           if (!response.ok) {
@@ -50,22 +49,30 @@ const MyProfile = () => {
           setData(data);
         } catch (error) {
           console.error("Error fetching prompts:", error);
+        } finally {
+          setLoading(false); // Stop loading after fetching is done
         }
-        setLoading(false);
-      } else {
+      } else if (status === "unauthenticated") {
+        // Redirect to home if the user is unauthenticated
         router.push("/");
       }
     };
 
-    fetchPrompts();
-  }, [session]);
+    if (status === "authenticated") {
+      fetchPrompts();
+    }
+  }, [session, status, router]);
 
-  // Render a loading state when session is being loaded
+  // Render a loader while the session is being fetched
   if (status === "loading") {
-    return <Loader className={"h-screen"} />;
+    return <Loader className="h-screen" />;
   }
 
-  // Return Profile component once session is loaded
+  // Render loader when the data is being fetched
+  if (loading) {
+    return <Loader className="h-screen" />;
+  }
+
   return (
     <Profile
       name="My"
@@ -74,7 +81,6 @@ const MyProfile = () => {
       data={data}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
-      loading={loading}
     />
   );
 };
