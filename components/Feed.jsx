@@ -26,14 +26,22 @@ export const Feed = () => {
   const input = useRef(null);
   const [error, setError] = useState(false);
 
-  // Debounce effect for search
   useEffect(() => {
     const debounceSearch = setTimeout(() => {
       setSearching(true);
-      if (searchText.trim() !== "") {
-        const filteredData = posts.filter((item) =>
-          item.creator.username.toLowerCase().includes(searchText.toLowerCase())
-        );
+      if (searchText.trim() !== "" && searchText.trim() !== "#") {
+        const filteredData = posts.filter((item) => {
+          console.log(item);
+          if (searchText.startsWith("#")) {
+            const tag = searchText.toLowerCase();
+            const tagsArray = item.tag.split(" ").map((t) => t.toLowerCase());
+            console.log(tagsArray);
+
+            return tagsArray.some((t) => t === tag);
+          } else {
+            return item.prompt.toLowerCase().includes(searchText.toLowerCase());
+          }
+        });
         setFilteredPrompts(filteredData);
       } else {
         setFilteredPrompts(posts);
@@ -44,12 +52,11 @@ export const Feed = () => {
     return () => clearTimeout(debounceSearch);
   }, [searchText, posts]);
 
-  // Fetch prompts on component mount
   useEffect(() => {
     const fetchPrompts = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/prompt");
+        const response = await fetch(`/api/prompt/all/${new Date()}`);
         if (!response.ok) throw new Error("Failed to fetch prompts");
         const data = await response.json();
         setPosts(data);
