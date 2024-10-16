@@ -63,13 +63,7 @@ const MyProfile = () => {
     }
   }, [session, status, router]);
 
-  // Render a loader while the session is being fetched
   if (status === "loading") {
-    return <Loader className="h-screen" />;
-  }
-
-  // Render loader when the data is being fetched
-  if (loading) {
     return <Loader className="h-screen" />;
   }
 
@@ -81,6 +75,7 @@ const MyProfile = () => {
       data={data}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
+      loading={loading}
     />
   );
 };

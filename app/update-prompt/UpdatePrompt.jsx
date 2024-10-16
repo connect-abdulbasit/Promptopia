@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Form from "@components/Form";
+import Loader from "@components/Loader";
 
 const UpdatePrompt = () => {
   const searchParams = useSearchParams();
@@ -72,7 +73,7 @@ const UpdatePrompt = () => {
   return (
     <>
       {loading ? (
-        <p>Loading prompt details...</p>
+        <Loader className={"h-screen"} />
       ) : (
         <Form
           type="Edit"

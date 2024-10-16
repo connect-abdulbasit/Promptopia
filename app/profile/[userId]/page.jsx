@@ -40,11 +40,6 @@ const Page = () => {
     };
     fetchPrompts();
   }, [userId]);
-
-  if (loading) {
-    return <Loader />; // Show loader while fetching
-  }
-
   if (error) {
     return <div>Error: {error}</div>; // Display error if any
   }
