@@ -54,7 +54,7 @@ export const Feed = () => {
     const fetchPrompts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/prompt/all/${new Date()}`);
+        const response = await fetch(`/api/prompt/all/${new Date().getDate()}`);
         if (!response.ok) throw new Error("Failed to fetch prompts");
         const data = await response.json();
         setPosts(data);
